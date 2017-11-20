@@ -2,4 +2,5 @@
 
 export("%>%")
 export(get_meta)
+export(rating)
 importFrom(magrittr,"%>%")
