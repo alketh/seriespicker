@@ -20,6 +20,7 @@ series_id <- seriespicker::ids[c(1, 4, 6)]
 get_meta(series_id)
 
 get_meta(ids[1:10])
-
-get_meta()
+\dontrun{
+  get_meta()
+}
 }

@@ -8,8 +8,9 @@
 #' get_meta(series_id)
 #'
 #' get_meta(ids[1:10])
-#'
-#' get_meta()
+#' \dontrun{
+#'   get_meta()
+#' }
 
 get_meta <- function(series_id = seriespicker::ids) {
   urls <- paste0("http://www.imdb.com/title/tt", series_id)
