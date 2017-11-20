@@ -9,6 +9,9 @@
 #' id <- "0944947"
 #' season <- 3
 #' rating(id, season)
+#'
+#' df <- rating("0944947", 5)
+#' df <- rating("0052520", 3)
 
 rating <- function(id, season) {
   url <- paste0("http://www.imdb.com/title/tt", id, "/episodes?season=", season, "&ref_=tt_eps_sn_", season)

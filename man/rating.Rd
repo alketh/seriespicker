@@ -21,4 +21,7 @@ Get episode specific series rating.
 id <- "0944947"
 season <- 3
 rating(id, season)
+
+df <- rating("0944947", 5)
+df <- rating("0052520", 3)
 }
