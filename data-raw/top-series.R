@@ -7,4 +7,11 @@ top_series <- unique(top_series)
 
 ids <- substr(top_series, start = 10, stop = 16)
 
-devtools::use_data(ids, overwrite = TRUE)
+# Get meta information for top 250 series
+top250 <- get_meta(series_id = ids)
+
+
+devtools::use_data(ids, top250, overwrite = TRUE)
+
+rm(list = ls())
+
