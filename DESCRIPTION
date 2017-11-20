@@ -1,11 +1,11 @@
 Package: seriespicker
 Type: Package
-Title: What the Package Does (Title Case)
+Title: Pick series from IMDB database.
 Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
+Author: Alexander Keth
+Maintainer: Alexander Keth <alexander.keth@uni-hamburg.de>
 Description: More about what it does (maybe more than one line)
     Use four spaces when indenting paragraphs within the Description.
-License: What license is it under?
+License: GPL
 Encoding: UTF-8
 LazyData: true
