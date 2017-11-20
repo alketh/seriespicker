@@ -1,9 +1,16 @@
 #' Get episode specific series rating.
+#'
+#' @param id Character IMDB series id string. E.g. \code{0944947} for "Game of Thrones".
+#' @param seasn Integer Season number.
+#' @return tidy dataframe with columns "gender", "age", "rating", "votes", "id", "name"
+#' @export
+#'
+#' @examples
+#' id <- "0944947"
+#' season <- 3
+#' rating(id, season)
 
-id <- "0944947"
-season <- 3
-
-ratings <- function(id, season) {
+rating <- function(id, season) {
   url <- paste0("http://www.imdb.com/title/tt", id, "/episodes?season=", season, "&ref_=tt_eps_sn_", season)
 
   html_raw <- xml2::read_html(url)
@@ -20,12 +27,31 @@ ratings <- function(id, season) {
   # Extract ratings and votes per age and gender ratings
   rarings <- purrr::map(ratings_raw, ~rvest::html_table(.)[2][[1]])
 
-  rating <- ratings[[1]]
+  # rating <- ratings[[1]]
   clean_ratings <- function(rating) {
-
+    df <- tidyr::gather_(rating, key_col = "age", value_col = "rating", gather_cols = names(rating)[2:ncol(rating)])
+    names(df)[1] <- "gender"
+    out <- tidyr::separate(df, col = "rating", into = c("rating", "x", "y", "votes"), sep = "\n") %>%
+      dplyr::select_(., .dots = c("gender", "age", "rating", "votes"))
+    return(out)
   }
 
   # Extract episode names
   names <- purrr::map(ratings_raw, ~rvest::html_nodes(., ".subnav_heading")) %>%
     purrr::map_chr(., rvest::html_text)
+
+  # Add episode name to rating table!
+  ratings_clean <- purrr::map(ratings, clean_ratings)
+
+  for (i in seq_along(ratings_clean)) {
+    ratings_clean[[i]]$id <- i
+    ratings_clean[[i]]$name <- names[i]
+  }
+
+  # Combine to single dataframe
+  out <- dplyr::bind_rows(ratings_clean)
+  out$rating <- as.numeric(out$rating)
+  out$votes <- as.numeric(stringr::str_replace(trimws(out$votes), ",", ""))
+
+  return(out)
 }
