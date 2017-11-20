@@ -15,5 +15,6 @@ Imports:
  rvest,
  dplyr,
  stringr,
- purrr
+ purrr,
+ tibble
 RoxygenNote: 6.0.1
