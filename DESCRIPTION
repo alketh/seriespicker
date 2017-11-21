@@ -11,11 +11,12 @@ Encoding: UTF-8
 LazyData: true
 Suggests: testthat
 Imports: 
- xml2,
- rvest,
  dplyr,
- stringr,
+ magrittr,
  purrr,
+ rvest,
+ stringr,
  tibble,
- tidyr
+ tidyr,
+ xml2
 RoxygenNote: 6.0.1

@@ -31,9 +31,9 @@ get_meta <- function(series_id = seriespicker::ids) {
   titles <- stringr::str_sub(string = titles, end = par_pos[, 1] - 2)
 
   # Extract number of seasons
-  seasons <- purrr::map(html_raw, ~rvest::html_nodes(., "#title-episode-widget")) %>%
-    purrr::map(., ~rvest::html_nodes(., "a")) %>%
-    purrr::map(., ~rvest::html_attr(., "href"))
+  seasons <- purrr::map(html_raw, ~rvest::html_nodes(., "#title-episode-widget"))
+  seasons <- purrr::map(seasons, ~rvest::html_nodes(., "a"))
+  seasons <- purrr::map(seasons, ~rvest::html_attr(., "href"))
 
   # Count season links.
   for (i in seq_along(seasons)) {

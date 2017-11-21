@@ -34,14 +34,14 @@ rating <- function(id, season) {
   clean_ratings <- function(rating) {
     df <- tidyr::gather_(rating, key_col = "age", value_col = "rating", gather_cols = names(rating)[2:ncol(rating)])
     names(df)[1] <- "gender"
-    out <- tidyr::separate(df, col = "rating", into = c("rating", "x", "y", "votes"), sep = "\n") %>%
-      dplyr::select_(., .dots = c("gender", "age", "rating", "votes"))
+    out <- tidyr::separate(df, col = "rating", into = c("rating", "x", "y", "votes"), sep = "\n")
+    out <- dplyr::select_(out, .dots = c("gender", "age", "rating", "votes"))
     return(out)
   }
 
   # Extract episode names
-  names <- purrr::map(ratings_raw, ~rvest::html_nodes(., ".subnav_heading")) %>%
-    purrr::map_chr(., rvest::html_text)
+  names <- purrr::map(ratings_raw, ~rvest::html_nodes(., ".subnav_heading"))
+  names <- purrr::map_chr(names, rvest::html_text)
 
   # Add episode name to rating table!
   ratings_clean <- purrr::map(ratings, clean_ratings)
