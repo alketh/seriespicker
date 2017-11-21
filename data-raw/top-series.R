@@ -1,4 +1,4 @@
-# Extract IMSB ids of top 250 series
+# Extract IMDB ids of top 250 series
 top_series <- xml2::read_html("http://www.imdb.com/chart/toptv/")
 top_series <- rvest::html_nodes(top_series, "a")
 top_series <- rvest::html_attr(top_series, "href")
