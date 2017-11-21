@@ -56,5 +56,5 @@ rating <- function(id, season) {
   out$rating <- as.numeric(out$rating)
   out$votes <- as.numeric(stringr::str_replace(trimws(out$votes), ",", ""))
 
-  return(out)
+  return(tibble::as.tibble(out))
 }
