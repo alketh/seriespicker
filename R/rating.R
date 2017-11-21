@@ -28,7 +28,7 @@ rating <- function(id, season) {
   ratings_raw <- purrr::map(rating_urls, xml2::read_html)
 
   # Extract ratings and votes per age and gender ratings
-  rarings <- purrr::map(ratings_raw, ~rvest::html_table(.)[2][[1]])
+  ratings <- purrr::map(ratings_raw, ~rvest::html_table(.)[2][[1]])
 
   # rating <- ratings[[1]]
   clean_ratings <- function(rating) {
