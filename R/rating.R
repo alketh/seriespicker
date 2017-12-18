@@ -54,14 +54,19 @@ rating <- function(id, season) {
   ratings_clean <- purrr::map(ratings, clean_ratings)
 
   for (i in seq_along(ratings_clean)) {
-    ratings_clean[[i]]$id <- i
-    ratings_clean[[i]]$name <- names[i]
+    ratings_clean[[i]]$ep_nr <- i
+    ratings_clean[[i]]$ep_name <- names[i]
   }
 
   # Combine to single dataframe
   out <- dplyr::bind_rows(ratings_clean)
   out$rating <- as.numeric(out$rating)
   out$votes <- as.numeric(stringr::str_replace(trimws(out$votes), ",", ""))
+  out$id <- id
+  out$season <- season
+  out <- tibble::as.tibble(out)
 
-  return(tibble::as.tibble(out))
+  # Redorder solumns
+  out <- dplyr::select_(out, .dots = c("id", "season", "ep_nr", "ep_name", "gender", "age", "rating", "votes"))
+  return(out)
 }
