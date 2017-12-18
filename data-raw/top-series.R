@@ -18,14 +18,17 @@ top250 <- get_meta(series_id = ids)
 ids <- purrr::flatten_chr(purrr::map2(top250$ids, top250$nos, ~rep(x = .x, times = .y)))
 seasons <- unlist(purrr::map(top250$nos, ~seq(1, .)))
 
-# lets do some debugging
+# lets add a progress bar here!
 ratings <- vector(mode = "list", length = length(ids))
+pb <- dplyr::progress_estimated(length(ratings))
 for (i in seq_along(ids)) {
   ratings[[i]] <- seriespicker::rating(id = ids[i], season = seasons[i])
-  print(i)
+  pb$tick()$print()
 }
+pb$stop()
 
-ratings <- purrr::map2(.x = ids, .y = seasons, seriespicker::rating)
+# Use a loop to add in progress bar.
+# ratings <- purrr::map2(.x = ids, .y = seasons, seriespicker::rating)
 
 
 devtools::use_data(ids, top250, ratings, overwrite = TRUE)
