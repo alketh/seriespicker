@@ -32,48 +32,56 @@ rating <- function(id, season) {
 
   # Read in raw rating html per episode.
   rating_urls <- paste0("http://www.imdb.com/title/", episode_urls, "/ratings?ref_=tt_ov_rt")
-  ratings_raw <- purrr::map(rating_urls, xml2::read_html)
 
-  # Extract ratings and votes per age and gender ratings
-  ratings <- purrr::map(ratings_raw, ~rvest::html_table(.)[2][[1]])
+  # catch issues with internet connection:
+  # E.g.  Error in open.connection(x, "rb") : Recv failure: Connection was reset
+  ratings_raw <- try(purrr::map(rating_urls, xml2::read_html))
 
-  # In case some episodes are not released yet define NAs to the whole season!
-  if (any(sapply(ratings, is.null))) {
-    out <- data.frame(id = id, season = season, ep_nr = NA, ep_name = NA, gender = NA, age = NA, rating = NA, votes = NA)
+  if (class(ratings_raw) == "try-error") {
+    out <- data.frame(id = id, season = season, ep_nr = NA, ep_name = NA, gender = NA, age = NA, rating = NA, votes = NA, error = "error in xml2::read_html call")
   } else {
-    # rating <- ratings[[1]]
-    clean_ratings <- function(rating) {
-      df <- tidyr::gather_(rating, key_col = "age", value_col = "rating", gather_cols = names(rating)[2:ncol(rating)])
-      names(df)[1] <- "gender"
+    # Extract ratings and votes per age and gender ratings
+    ratings <- purrr::map(ratings_raw, ~rvest::html_table(.)[2][[1]])
 
-      # Some episodes have no rating
-      df[df$rating == "-", 3] <- NA
-      out <- tidyr::separate(df, col = "rating", into = c("rating", "x", "y", "votes"), sep = "\n")
-      out <- dplyr::select_(out, .dots = c("gender", "age", "rating", "votes"))
-      return(out)
+    # In case some episodes are not released yet define NAs to the whole season!
+    if (any(sapply(ratings, is.null))) {
+      out <- data.frame(id = id, season = season, ep_nr = NA, ep_name = NA, gender = NA, age = NA, rating = NA, votes = NA, error = NA)
+    } else {
+      # rating <- ratings[[1]]
+      clean_ratings <- function(rating) {
+        df <- tidyr::gather_(rating, key_col = "age", value_col = "rating", gather_cols = names(rating)[2:ncol(rating)])
+        names(df)[1] <- "gender"
+
+        # Some episodes have no rating
+        df[df$rating == "-", 3] <- NA
+        out <- tidyr::separate(df, col = "rating", into = c("rating", "x", "y", "votes"), sep = "\n")
+        out <- dplyr::select_(out, .dots = c("gender", "age", "rating", "votes"))
+        return(out)
+      }
+
+      # Extract episode names
+      names <- purrr::map(ratings_raw, ~rvest::html_nodes(., ".subnav_heading"))
+      names <- purrr::map_chr(names, rvest::html_text)
+
+      # Add episode name to rating table!
+      ratings_clean <- purrr::map(ratings, clean_ratings)
+
+      for (i in seq_along(ratings_clean)) {
+        ratings_clean[[i]]$ep_nr <- i
+        ratings_clean[[i]]$ep_name <- names[i]
+      }
+
+      # Combine to single dataframe
+      out <- dplyr::bind_rows(ratings_clean)
+      out$rating <- as.numeric(out$rating)
+      out$votes <- as.numeric(stringr::str_replace(trimws(out$votes), ",", ""))
+      out$id <- id
+      out$season <- season
+      out$error <- NA
+
+      # Redorder solumns
+      out <- dplyr::select_(out, .dots = c("id", "season", "ep_nr", "ep_name", "gender", "age", "rating", "votes", "error"))
     }
-
-    # Extract episode names
-    names <- purrr::map(ratings_raw, ~rvest::html_nodes(., ".subnav_heading"))
-    names <- purrr::map_chr(names, rvest::html_text)
-
-    # Add episode name to rating table!
-    ratings_clean <- purrr::map(ratings, clean_ratings)
-
-    for (i in seq_along(ratings_clean)) {
-      ratings_clean[[i]]$ep_nr <- i
-      ratings_clean[[i]]$ep_name <- names[i]
-    }
-
-    # Combine to single dataframe
-    out <- dplyr::bind_rows(ratings_clean)
-    out$rating <- as.numeric(out$rating)
-    out$votes <- as.numeric(stringr::str_replace(trimws(out$votes), ",", ""))
-    out$id <- id
-    out$season <- season
-
-    # Redorder solumns
-    out <- dplyr::select_(out, .dots = c("id", "season", "ep_nr", "ep_name", "gender", "age", "rating", "votes"))
   }
 
   return(out <- tibble::as.tibble(out))
