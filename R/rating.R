@@ -1,7 +1,7 @@
 #' Get episode specific series rating.
 #'
 #' @param id Character IMDB series id string. E.g. \code{0944947} for "Game of Thrones".
-#' @param seasn Integer Season number.
+#' @param season Integer Season number.
 #' @return tidy dataframe with columns "gender", "age", "rating", "votes", "id", "name"
 #' @export
 #'

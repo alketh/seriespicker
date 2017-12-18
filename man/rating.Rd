@@ -9,7 +9,7 @@ rating(id, season)
 \arguments{
 \item{id}{Character IMDB series id string. E.g. \code{0944947} for "Game of Thrones".}
 
-\item{seasn}{Integer Season number.}
+\item{season}{Integer Season number.}
 }
 \value{
 tidy dataframe with columns "gender", "age", "rating", "votes", "id", "name"
