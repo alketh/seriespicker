@@ -17,6 +17,8 @@
 #' df <- rating("0944947", 5)
 #' df <- rating("0052520", 3)
 
+# Personal NOTE: >90% of computation time is spent with xml2::read_html.
+
 rating <- function(id, season) {
   url <- paste0("http://www.imdb.com/title/tt", id, "/episodes?season=", season, "&ref_=tt_eps_sn_", season)
 
