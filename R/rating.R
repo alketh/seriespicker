@@ -8,6 +8,7 @@
 #' @examples
 #' id <- "0944947"
 #' season <- 3
+#' season <- 1
 #'
 #' id <- "5491994"
 #' season <- 1
@@ -36,39 +37,44 @@ rating <- function(id, season) {
   # Extract ratings and votes per age and gender ratings
   ratings <- purrr::map(ratings_raw, ~rvest::html_table(.)[2][[1]])
 
-  # rating <- ratings[[1]]
-  clean_ratings <- function(rating) {
-    df <- tidyr::gather_(rating, key_col = "age", value_col = "rating", gather_cols = names(rating)[2:ncol(rating)])
-    names(df)[1] <- "gender"
+  # In case some episodes are not released yet define NAs to the whole season!
+  if (any(sapply(ratings, is.null))) {
+    out <- data.frame(id = id, season = season, ep_nr = NA, ep_name = NA, gender = NA, age = NA, rating = NA, votes = NA)
+  } else {
+    # rating <- ratings[[1]]
+    clean_ratings <- function(rating) {
+      df <- tidyr::gather_(rating, key_col = "age", value_col = "rating", gather_cols = names(rating)[2:ncol(rating)])
+      names(df)[1] <- "gender"
 
-    # Some episodes have no rating
-    df[df$rating == "-", 3] <- NA
-    out <- tidyr::separate(df, col = "rating", into = c("rating", "x", "y", "votes"), sep = "\n")
-    out <- dplyr::select_(out, .dots = c("gender", "age", "rating", "votes"))
-    return(out)
+      # Some episodes have no rating
+      df[df$rating == "-", 3] <- NA
+      out <- tidyr::separate(df, col = "rating", into = c("rating", "x", "y", "votes"), sep = "\n")
+      out <- dplyr::select_(out, .dots = c("gender", "age", "rating", "votes"))
+      return(out)
+    }
+
+    # Extract episode names
+    names <- purrr::map(ratings_raw, ~rvest::html_nodes(., ".subnav_heading"))
+    names <- purrr::map_chr(names, rvest::html_text)
+
+    # Add episode name to rating table!
+    ratings_clean <- purrr::map(ratings, clean_ratings)
+
+    for (i in seq_along(ratings_clean)) {
+      ratings_clean[[i]]$ep_nr <- i
+      ratings_clean[[i]]$ep_name <- names[i]
+    }
+
+    # Combine to single dataframe
+    out <- dplyr::bind_rows(ratings_clean)
+    out$rating <- as.numeric(out$rating)
+    out$votes <- as.numeric(stringr::str_replace(trimws(out$votes), ",", ""))
+    out$id <- id
+    out$season <- season
+
+    # Redorder solumns
+    out <- dplyr::select_(out, .dots = c("id", "season", "ep_nr", "ep_name", "gender", "age", "rating", "votes"))
   }
 
-  # Extract episode names
-  names <- purrr::map(ratings_raw, ~rvest::html_nodes(., ".subnav_heading"))
-  names <- purrr::map_chr(names, rvest::html_text)
-
-  # Add episode name to rating table!
-  ratings_clean <- purrr::map(ratings, clean_ratings)
-
-  for (i in seq_along(ratings_clean)) {
-    ratings_clean[[i]]$ep_nr <- i
-    ratings_clean[[i]]$ep_name <- names[i]
-  }
-
-  # Combine to single dataframe
-  out <- dplyr::bind_rows(ratings_clean)
-  out$rating <- as.numeric(out$rating)
-  out$votes <- as.numeric(stringr::str_replace(trimws(out$votes), ",", ""))
-  out$id <- id
-  out$season <- season
-  out <- tibble::as.tibble(out)
-
-  # Redorder solumns
-  out <- dplyr::select_(out, .dots = c("id", "season", "ep_nr", "ep_name", "gender", "age", "rating", "votes"))
-  return(out)
+  return(out <- tibble::as.tibble(out))
 }
