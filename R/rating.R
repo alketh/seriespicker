@@ -13,6 +13,9 @@
 #' id <- "5491994"
 #' season <- 1
 #'
+#' id <- "1641384"
+#' season <- 3
+#'
 #' rating(id, season)
 #'
 #' df <- rating("0944947", 5)
@@ -36,16 +39,23 @@ rating <- function(id, season) {
   # catch issues with internet connection:
   # E.g.  Error in open.connection(x, "rb") : Recv failure: Connection was reset
   ratings_raw <- try(purrr::map(rating_urls, xml2::read_html))
+  out_col <- 9
+  out_names <- c("id", "season", "ep_nr", "ep_name", "gender", "age", "rating", "votes", "error")
+
+  out <- data.frame(t(rep(NA, out_col)))
+  names(out) <- out_names
+  out$id <- id
+  out$season <- season
 
   if (class(ratings_raw) == "try-error") {
-    out <- data.frame(id = id, season = season, ep_nr = NA, ep_name = NA, gender = NA, age = NA, rating = NA, votes = NA, error = "error in xml2::read_html call")
+    out$error <- "error in xml2::read_html call"
   } else {
     # Extract ratings and votes per age and gender ratings
     ratings <- purrr::map(ratings_raw, ~rvest::html_table(.)[2][[1]])
 
     # In case some episodes are not released yet define NAs to the whole season!
     if (any(sapply(ratings, is.null))) {
-      out <- data.frame(id = id, season = season, ep_nr = NA, ep_name = NA, gender = NA, age = NA, rating = NA, votes = NA, error = NA)
+      out$error <- NA
     } else {
       # rating <- ratings[[1]]
       clean_ratings <- function(rating) {
@@ -80,7 +90,7 @@ rating <- function(id, season) {
       out$error <- NA
 
       # Redorder solumns
-      out <- dplyr::select_(out, .dots = c("id", "season", "ep_nr", "ep_name", "gender", "age", "rating", "votes", "error"))
+      out <- dplyr::select_(out, .dots = out_names)
     }
   }
 
