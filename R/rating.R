@@ -94,5 +94,5 @@ rating <- function(id, season) {
     }
   }
 
-  return(out <- tibble::as.tibble(out))
+  return(tibble::as.tibble(out))
 }
