@@ -41,7 +41,7 @@ get_meta <- function(series_id = seriespicker::ids) {
   }
 
   # Add to output tibble
-  out <- tibble::tibble(ids = series_id, title = titles, nos = purrr::map_int(seasons, length))
+  out <- tibble::tibble(id = series_id, title = titles, nos = purrr::map_int(seasons, length))
   return(out)
 }
 
