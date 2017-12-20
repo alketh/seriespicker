@@ -21,13 +21,13 @@ seasons <- unlist(purrr::map(top250$nos, ~seq(1, .)))
 # lets add a progress bar here!
 ratings <- vector(mode = "list", length = length(ids))
 pb <- dplyr::progress_estimated(length(ratings))
-for (i in 260:400) {
+for (i in seq_along(ratings)) {
   ratings[[i]] <- seriespicker::rating(id = ids[i], season = seasons[i])
   pb$tick()$print()
 }
 pb$stop()
 
-# Use a loop to add in progress bar.
+# Use a loop instead to add in progress bar.
 # ratings <- purrr::map2(.x = ids, .y = seasons, seriespicker::rating)
 
 
