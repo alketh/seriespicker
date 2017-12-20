@@ -27,11 +27,14 @@ for (i in seq_along(ratings)) {
 }
 pb$stop()
 
-# Use a loop instead to add in progress bar.
-# ratings <- purrr::map2(.x = ids, .y = seasons, seriespicker::rating)
+# Let's combine everything to one dataframe and have a look at it.
+rating <- dplyr::bind_rows(ratings)
+rating <- dplyr::left_join(rating, top250)
 
+# There was an issue with the internet connection with 1 entry:
+which(grepl(pattern = "error", x = rating$error))
 
-devtools::use_data(ids, top250, overwrite = TRUE)
+devtools::use_data(ids, top250, rating, overwrite = TRUE)
 
 rm(list = ls())
 
