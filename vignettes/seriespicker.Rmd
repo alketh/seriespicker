@@ -10,14 +10,33 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-The TV series ratings by series and episode was extracted from [IMDB](http://www.imdb.com)
-
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
 ```
+
+The TV series ratings by series and episode was extracted from [IMDB](http://www.imdb.com) using the [seriespicker](https://github.com/alketh/seriespicker) package available on [github](https://github.com). Due to the time consuming data extraction from [IMDB](http://www.imdb.com) (it takes roughly 3 hours to extract the data) the package comes with a prebuild dataframe called *rating*. Thus, Make sure to install and load the package prior to your data analysis.
+
+```{r, eval = FALSE}
+devtools::install_github("alketh/seriespicker")
+```
+
+```{r}
+library("tibble")
+library("seriespicker")
+head(rating)
+```
+
+## Data extraction
+
+The data was extracted from [IMDB](http://www.imdb.com). As a first step the series ID was read in. See *data-raw/top-series.R* for details. The IDs of the top 250 series are stored as character vector in *ids*.
+
+```{r}
+glimpse(ids)
+```
+
 
 
 ## Figures
