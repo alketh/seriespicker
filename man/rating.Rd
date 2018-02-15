@@ -20,9 +20,13 @@ Get episode specific series rating.
 \examples{
 id <- "0944947"
 season <- 3
+season <- 1
 
 id <- "5491994"
 season <- 1
+
+id <- "1641384"
+season <- 3
 
 rating(id, season)
 
