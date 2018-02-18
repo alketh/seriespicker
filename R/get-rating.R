@@ -18,8 +18,8 @@
 #'
 #' rating(id, season)
 #'
-#' df <- rating("0944947", 5)
-#' df <- rating("0052520", 3)
+#' df <- get_rating("0944947", 5)
+#' df <- get_rating("0052520", 3)
 
 # Personal NOTE: >90% of computation time is spent with xml2::read_html.
 
